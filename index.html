@@ -255,6 +255,14 @@
         <h1>🔗 Encurtador de Links</h1>
         
         <div class="input-group">
+            <label for="domainConfig">Domínio Base (configure uma vez):</label>
+            <input type="text" id="domainConfig" placeholder="https://insolitos.github.io/encurtador/" value="https://insolitos.github.io/encurtador">
+            <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                Configure seu domínio para gerar links corretos. Ex: https://github.io/meuprojeto
+            </small>
+        </div>
+        
+        <div class="input-group">
             <label for="originalUrl">URL Original:</label>
             <input type="url" id="originalUrl" placeholder="https://exemplo.com/link-muito-longo" required>
         </div>
@@ -417,12 +425,41 @@
         }
 
         function getBaseUrl() {
+            // Verificar se há um domínio configurado pelo usuário
+            const configuredDomain = document.getElementById('domainConfig').value.trim();
+            if (configuredDomain) {
+                // Remover barra final se existir
+                return configuredDomain.replace(/\/$/, '');
+            }
+            
             // Se estiver sendo executado localmente ou em ambiente de desenvolvimento
             if (window.location.origin === 'null' || window.location.protocol === 'file:') {
-                return 'https://seusite.com'; // Substitua pelo seu domínio
+                return 'https://insolitos.github.io/encurtador'; // Seu domínio GitHub Pages
             }
             return window.location.origin;
         }
+
+        // Carregar domínio salvo ao inicializar
+        window.addEventListener('load', function() {
+            const savedDomain = localStorage.getItem('baseDomain');
+            if (savedDomain) {
+                document.getElementById('domainConfig').value = savedDomain;
+            } else {
+                // Definir domínio padrão na primeira vez
+                document.getElementById('domainConfig').value = 'https://insolitos.github.io/encurtador';
+                localStorage.setItem('baseDomain', 'https://insolitos.github.io/encurtador');
+            }
+        });
+
+        // Salvar domínio quando mudado
+        document.getElementById('domainConfig').addEventListener('change', function() {
+            const domain = this.value.trim();
+            if (domain) {
+                localStorage.setItem('baseDomain', domain);
+            } else {
+                localStorage.removeItem('baseDomain');
+            }
+        });
 
         function displayResult(shortCode, originalUrl) {
             const baseUrl = getBaseUrl();
